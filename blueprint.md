@@ -14,16 +14,17 @@ This project aims to create a web application that analyzes a user's facial phot
     *   The application displays the uploaded image.
     *   A simulated personal color analysis is performed, and the result (a season and color palette) is displayed.
     *   A "Reset" button is available to clear the uploaded image and analysis results.
+*   **Improved User Flow:**
+    *   An "Analyze" button appears after image upload, providing a clear call to action.
+    *   The analysis is triggered only when the user clicks the "Analyze" button.
 
-## Current Task: Improved User Flow with Analysis Button
+## Current Task: UI Enhancements - Image Scaling and Color Names
 
-*   **Objective:** Enhance the user experience by introducing an "Analyze" button that appears after an image is uploaded.
+*   **Objective:** Improve the visual presentation of the analysis results.
 *   **Plan:**
-    1.  **Update HTML (`index.html`):**
-        *   Add an "Analyze" button, initially hidden.
+    1.  **Update CSS (`style.css`):**
+        *   Modify the `.image-preview img` style to use `object-fit: contain` to prevent images from being cropped.
+        *   Add styles for displaying color names below the color swatches.
     2.  **Update JavaScript (`main.js`):**
-        *   When an image is uploaded, hide the upload prompt and show the "Analyze" button.
-        *   When the "Analyze" button is clicked, perform the analysis and display the results, along with the "Reset" button.
-        *   Update the reset functionality to restore the state to the initial upload prompt.
-    3.  **Update CSS (`style.css`):**
-        *   Add styles for the new "Analyze" button to ensure it is visually appealing and consistent with the existing design.
+        *   Update the `personalColors` data structure to include color names along with their hex codes.
+        *   Modify the `displayResult` function to create and display the color names with the color swatches.
