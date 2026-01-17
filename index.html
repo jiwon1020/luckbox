@@ -16,7 +16,7 @@
     <div id="app">
         <header>
             <nav class="top-nav">
-                <a href="#app" class="logo">Personal Color AI</a>
+                <a href="#app" class="logo">컬러미</a>
                 <ul>
                     <li><a href="#app">진단하기</a></li>
                     <li><a href="#about">서비스 소개</a></li>
@@ -27,31 +27,31 @@
         <main>
             <section id="hero">
                 <div class="hero-content">
-                    <h1>AI 퍼스널 컬러 진단</h1>
-                    <p class="subtitle">사진 한 장으로 당신의 완벽한 컬러 팔레트를 찾아보세요.<br>가장 빛나는 당신의 모습을 발견할 시간입니다.</p>
+                    <h1>안녕하세요,<br>어떤 컬러가 어울릴까요?</h1>
+                    <p class="subtitle">AI가 당신의 퍼스널 컬러를 찾아드려요!</p>
                 </div>
             </section>
-            
+
             <section class="card-section">
                 <div class="card">
-                    <h2><i class="fas fa-palette"></i> 컬러 진단 시작하기</h2>
-                    <p>아래 영역에 사진을 업로드하여 AI 분석을 시작하세요. 정확한 진단을 위해 정면을 바라본, 자연광 아래에서 촬영된 선명한 사진을 권장합니다.</p>
+                    <h2><i class="fas fa-palette"></i> 컬러 진단</h2>
+                    <p>정면 얼굴 사진을 업로드하면 AI가 피부톤을 분석해 어울리는 컬러를 알려드려요.</p>
                     <div id="image-uploader">
                         <div class="upload-area">
-                            <div class="icon"><i class="fas fa-cloud-upload-alt"></i></div>
-                            <p>사진을 드래그 앤 드롭 하거나 <strong>클릭하여 업로드</strong></p>
-                            <span>지원 파일: JPG, PNG</span>
+                            <div class="icon"><i class="fas fa-camera"></i></div>
+                            <p>사진을 업로드하세요</p>
+                            <span>클릭 또는 드래그 앤 드롭</span>
                         </div>
                         <input type="file" id="file-input" hidden accept="image/jpeg, image/png">
                         <div class="image-display-area">
                             <div class="image-preview"></div>
-                            <canvas id="face-canvas"></canvas> 
+                            <canvas id="face-canvas"></canvas>
                             <div id="palette-overlay"></div>
                         </div>
                     </div>
-                    <button id="reset-button" class="hidden">다시 시도하기</button>
+                    <button id="reset-button" class="hidden">다시 진단하기</button>
                 </div>
-                 <div id="result-section" class="card hidden">
+                <div id="result-section" class="card hidden">
                     <h2 id="result-season"></h2>
                     <div id="result-palette"></div>
                     <div id="seasonal-descriptions"></div>
@@ -62,22 +62,22 @@
                 <div class="about-container">
                     <div class="about-color-bar"></div>
                     <div class="about-content">
-                        <h2><i class="fas fa-info-circle"></i> About Our Service</h2>
-                        <p><strong>Personal Color AI</strong>는 최신 인공지능 기술을 활용하여 사용자의 사진으로부터 피부, 머리카락, 눈동자 색상을 정밀하게 분석합니다. 이 데이터를 기반으로, 4계절(봄, 여름, 가을, 겨울)과 세부 톤(웜, 쿨, 뮤트 등)을 조합하여 가장 조화로운 퍼스널 컬러 팔레트를 찾아드립니다.</p>
-                        <p>저희 서비스는 단순히 색상을 진단하는 것을 넘어, 당신의 매력을 극대화할 수 있는 패션 스타일링, 헤어 컬러, 메이크업 팁까지 함께 제안합니다. 자신에게 어울리는 색을 아는 것은 자신감을 높이고 긍정적인 이미지를 만드는 첫걸음입니다. 지금 바로 Personal Color AI와 함께 당신만의 아름다움을 발견해보세요.</p>
+                        <h2><i class="fas fa-sparkles"></i> 서비스 소개</h2>
+                        <p><strong>컬러미</strong>는 AI 얼굴 인식 기술로 피부톤을 분석하여 봄/여름/가을/겨울 퍼스널 컬러를 진단해드립니다.</p>
+                        <p>나에게 어울리는 색을 알면 패션, 메이크업, 헤어컬러 선택이 쉬워져요. 지금 바로 당신만의 컬러를 찾아보세요!</p>
                     </div>
                 </div>
             </section>
 
             <section id="contact" class="content-section">
-                <h2><i class="fas fa-envelope"></i> Contact Us</h2>
-                <p>서비스에 대한 질문이나 제안이 있으신가요? 아래 이메일로 연락주시면 신속하게 답변드리겠습니다.</p>
+                <h2><i class="fas fa-envelope"></i> 문의하기</h2>
+                <p>서비스에 대한 질문이나 제안이 있으시면 아래 이메일로 연락주세요.</p>
                 <p><strong>이메일:</strong> <a href="mailto:yyoonjiwon@gmail.com">yyoonjiwon@gmail.com</a></p>
             </section>
         </main>
         <footer>
             <div class="footer-content">
-                <p>&copy; 2026 MMBABY. All Rights Reserved.</p>
+                <p>&copy; 2026 컬러미. All Rights Reserved.</p>
                 <ul class="footer-links">
                     <li><a href="privacy.html" target="_blank">개인정보처리방침</a></li>
                     <li><a href="#about">서비스 소개</a></li>
