@@ -69,12 +69,11 @@ header h1 {
     object-fit: cover;
 }
 
-#reset-button {
+#analyze-button, #reset-button {
     margin-top: 1rem;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     color: #fff;
-    background-color: #f67280;
     border: none;
     border-radius: 25px;
     cursor: pointer;
@@ -82,12 +81,25 @@ header h1 {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+#analyze-button {
+    background-color: #6c5b7b;
+}
+
+#analyze-button:hover {
+    background-color: #355c7d;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+#reset-button {
+    background-color: #f67280;
+}
+
 #reset-button:hover {
     background-color: #c06c84;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-#reset-button.hidden {
+#analyze-button.hidden, #reset-button.hidden {
     display: none;
 }
 

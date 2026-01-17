@@ -9,22 +9,21 @@ This project aims to create a web application that analyzes a user's facial phot
 
 *   **Initial Setup:**
     *   Basic HTML, CSS, and JavaScript files (`index.html`, `style.css`, `main.js`).
-    *   "Hello World" placeholder content.
+*   **Personal Color Analyzer v1:**
+    *   Users can upload an image via drag-and-drop or file selection.
+    *   The application displays the uploaded image.
+    *   A simulated personal color analysis is performed, and the result (a season and color palette) is displayed.
+    *   A "Reset" button is available to clear the uploaded image and analysis results.
 
-## Current Task: Personal Color Analyzer
+## Current Task: Improved User Flow with Analysis Button
 
-*   **Objective:** Implement the core functionality of the personal color analyzer.
+*   **Objective:** Enhance the user experience by introducing an "Analyze" button that appears after an image is uploaded.
 *   **Plan:**
     1.  **Update HTML (`index.html`):**
-        *   Change the title to "나의 퍼스널 컬러는?".
-        *   Add a file input element for users to upload their photos.
-        *   Add a button to trigger the analysis.
-        *   Create a designated area to display the analysis result.
-    2.  **Update CSS (`style.css`):**
-        *   Apply a clean and modern design.
-        *   Ensure the layout is responsive and works well on both mobile and desktop.
-        *   Style the file input, button, and result area for a user-friendly experience.
-    3.  **Update JavaScript (`main.js`):**
-        *   Implement the logic to handle image uploads.
-        *   Create a function to simulate the personal color analysis (initially, it will return a random result).
-        *   Display the result dynamically on the page.
+        *   Add an "Analyze" button, initially hidden.
+    2.  **Update JavaScript (`main.js`):**
+        *   When an image is uploaded, hide the upload prompt and show the "Analyze" button.
+        *   When the "Analyze" button is clicked, perform the analysis and display the results, along with the "Reset" button.
+        *   Update the reset functionality to restore the state to the initial upload prompt.
+    3.  **Update CSS (`style.css`):**
+        *   Add styles for the new "Analyze" button to ensure it is visually appealing and consistent with the existing design.

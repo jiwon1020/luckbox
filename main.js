@@ -11,6 +11,7 @@ const imagePreview = document.querySelector('.image-preview');
 const resultSection = document.getElementById('result-section');
 const resultSeason = document.getElementById('result-season');
 const resultPalette = document.getElementById('result-palette');
+const analyzeButton = document.getElementById('analyze-button');
 const resetButton = document.getElementById('reset-button');
 const uploadArea = document.querySelector('.upload-area');
 
@@ -49,12 +50,19 @@ fileInput.addEventListener('change', (event) => {
     }
 });
 
+analyzeButton.addEventListener('click', () => {
+    analyzeImage();
+    analyzeButton.classList.add('hidden');
+    resetButton.classList.remove('hidden');
+});
+
 resetButton.addEventListener('click', () => {
     imagePreview.innerHTML = '';
     resultSection.classList.add('hidden');
     resetButton.classList.add('hidden');
+    analyzeButton.classList.add('hidden');
     uploadArea.style.display = 'block';
-    fileInput.value = ''; 
+    fileInput.value = '';
     imageUploader.style.cursor = 'pointer';
 });
 
@@ -69,8 +77,7 @@ function handleFile(file) {
         imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image">`;
         uploadArea.style.display = 'none';
         imageUploader.style.cursor = 'default';
-        resetButton.classList.remove('hidden');
-        analyzeImage();
+        analyzeButton.classList.remove('hidden');
     };
     reader.readAsDataURL(file);
 }
