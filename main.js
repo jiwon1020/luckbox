@@ -107,16 +107,15 @@ function startApp() {
 
         const imgUrl = URL.createObjectURL(file);
         const img = document.createElement('img');
-        img.src = imgUrl;
-
-        imagePreview.innerHTML = ''; 
-        imagePreview.appendChild(img);
-        
-        uploadArea.style.display = 'none';
-        imageDisplayArea.style.display = 'block';
-        resetButton.classList.remove('hidden');
 
         img.onload = async () => {
+            imagePreview.innerHTML = ''; 
+            imagePreview.appendChild(img);
+            
+            uploadArea.style.display = 'none';
+            imageDisplayArea.style.display = 'block';
+            resetButton.classList.remove('hidden');
+
             const displaySize = { width: img.width, height: img.height };
             faceapi.matchDimensions(faceCanvas, displaySize);
             
@@ -131,6 +130,7 @@ function startApp() {
 
             analyzeImage(imgUrl);
         };
+        img.src = imgUrl;
     }
 
     function analyzeImage(dataUrl) {
