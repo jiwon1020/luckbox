@@ -11,12 +11,20 @@ const imagePreview = document.querySelector('.image-preview');
 const resultSection = document.getElementById('result-section');
 const resultSeason = document.getElementById('result-season');
 const resultPalette = document.getElementById('result-palette');
+const resetButton = document.getElementById('reset-button');
+const uploadArea = document.querySelector('.upload-area');
 
-imageUploader.addEventListener('click', () => fileInput.click());
+imageUploader.addEventListener('click', () => {
+    if (!imagePreview.querySelector('img')) {
+        fileInput.click();
+    }
+});
 
 imageUploader.addEventListener('dragover', (event) => {
     event.preventDefault();
-    imageUploader.style.backgroundColor = '#f7f7f7';
+    if (!imagePreview.querySelector('img')) {
+        imageUploader.style.backgroundColor = '#f7f7f7';
+    }
 });
 
 imageUploader.addEventListener('dragleave', () => {
@@ -25,10 +33,12 @@ imageUploader.addEventListener('dragleave', () => {
 
 imageUploader.addEventListener('drop', (event) => {
     event.preventDefault();
-    imageUploader.style.backgroundColor = 'var(--card-background)';
-    const files = event.dataTransfer.files;
-    if (files.length > 0) {
-        handleFile(files[0]);
+    if (!imagePreview.querySelector('img')) {
+        imageUploader.style.backgroundColor = 'var(--card-background)';
+        const files = event.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
     }
 });
 
@@ -37,6 +47,15 @@ fileInput.addEventListener('change', (event) => {
     if (files.length > 0) {
         handleFile(files[0]);
     }
+});
+
+resetButton.addEventListener('click', () => {
+    imagePreview.innerHTML = '';
+    resultSection.classList.add('hidden');
+    resetButton.classList.add('hidden');
+    uploadArea.style.display = 'block';
+    fileInput.value = ''; 
+    imageUploader.style.cursor = 'pointer';
 });
 
 function handleFile(file) {
@@ -48,6 +67,9 @@ function handleFile(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
         imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image">`;
+        uploadArea.style.display = 'none';
+        imageUploader.style.cursor = 'default';
+        resetButton.classList.remove('hidden');
         analyzeImage();
     };
     reader.readAsDataURL(file);
