@@ -125,14 +125,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayResult(season, data) {
-        resultSeason.textContent = season;
-        resultPalette.innerHTML = '';
+        resultSeason.innerHTML = `<i class="fas fa-sun"></i> ${season}`;
+        
+        resultPalette.innerHTML = '<h5>대표 컬러</h5>';
+        const paletteContainer = document.createElement('div');
+        paletteContainer.className = 'palette-grid';
         data.colors.forEach(color => {
             const colorItem = document.createElement('div');
             colorItem.className = 'color-item';
-            colorItem.innerHTML = `<div class="color-box" style="background-color: ${color.code};"></div><span class="color-name">${color.name}</span>`;
-            resultPalette.appendChild(colorItem);
+            colorItem.innerHTML = `<div class="color-box" style="background-color: ${color.code};" title="${color.name}"></div>`;
+            paletteContainer.appendChild(colorItem);
         });
+        resultPalette.appendChild(paletteContainer);
 
         paletteOverlay.innerHTML = '';
         data.colors.forEach(color => {
@@ -144,12 +148,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         seasonalDescriptions.innerHTML = `
-            <div class="description-content">
-                <p class="lead">${data.description}</p>
-                <h3><i class="fas fa-key"></i> 이미지 키워드</h3>
+            <div class="info-card">
+                <div class="info-header"><i class="fas fa-feather-alt"></i><h3>총평</h3></div>
+                <p>${data.description}</p>
+            </div>
+            <div class="info-card">
+                <div class="info-header"><i class="fas fa-key"></i><h3>이미지 키워드</h3></div>
                 <div class="keywords">${data.keywords.map(k => `<span>#${k}</span>`).join('')}</div>
-                <h3><i class="fas fa-tshirt"></i> 스타일링 팁</h3><p>${data.styling}</p>
-                <h3><i class="fas fa-magic"></i> 메이크업 팁</h3><p>${data.makeup}</p>
+            </div>
+            <div class="info-card">
+                <div class="info-header"><i class="fas fa-tshirt"></i><h3>스타일링 팁</h3></div>
+                <p>${data.styling}</p>
+            </div>
+            <div class="info-card">
+                <div class="info-header"><i class="fas fa-magic"></i><h3>메이크업 팁</h3></div>
+                <p>${data.makeup}</p>
             </div>
         `;
 
