@@ -119,17 +119,22 @@ function startApp() {
             imageDisplayArea.style.display = 'block';
             resetButton.classList.remove('hidden');
 
-            const displaySize = { width: img.width, height: img.height };
-            faceapi.matchDimensions(faceCanvas, displaySize);
+            // face-api 얼굴 감지 (모델 로딩 실패해도 분석은 계속 진행)
+            try {
+                const displaySize = { width: img.width, height: img.height };
+                faceapi.matchDimensions(faceCanvas, displaySize);
 
-            const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
-            const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
-            const context = faceCanvas.getContext('2d');
-            context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
-            faceapi.draw.drawDetections(faceCanvas, resizedDetections);
-            faceapi.draw.drawFaceLandmarks(faceCanvas, resizedDetections);
-            faceapi.draw.drawFaceExpressions(faceCanvas, resizedDetections);
+                const context = faceCanvas.getContext('2d');
+                context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+                faceapi.draw.drawDetections(faceCanvas, resizedDetections);
+                faceapi.draw.drawFaceLandmarks(faceCanvas, resizedDetections);
+                faceapi.draw.drawFaceExpressions(faceCanvas, resizedDetections);
+            } catch (err) {
+                console.error('Face detection failed:', err);
+            }
 
             analyzeImage(imgUrl);
         };
