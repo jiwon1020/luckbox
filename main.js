@@ -93,7 +93,7 @@ function startApp() {
             handleFile(e.dataTransfer.files[0]);
         }
     });
-    
+
     uploadArea.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', (e) => {
@@ -112,16 +112,16 @@ function startApp() {
         const img = document.createElement('img');
 
         img.onload = async () => {
-            imagePreview.innerHTML = ''; 
+            imagePreview.innerHTML = '';
             imagePreview.appendChild(img);
-            
+
             uploadArea.style.display = 'none';
             imageDisplayArea.style.display = 'block';
             resetButton.classList.remove('hidden');
 
             const displaySize = { width: img.width, height: img.height };
             faceapi.matchDimensions(faceCanvas, displaySize);
-            
+
             const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
             const resizedDetections = faceapi.resizeResults(detections, displaySize);
 
@@ -152,7 +152,7 @@ function startApp() {
 
     function displayResult(season, data) {
         resultSeason.innerHTML = `<i class="fas fa-sun"></i> ${season}`;
-        
+
         resultPalette.innerHTML = '<h5>대표 컬러</h5>';
         const paletteContainer = document.createElement('div');
         paletteContainer.className = 'palette-grid';
