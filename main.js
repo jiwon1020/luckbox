@@ -66,6 +66,8 @@ function startApp() {
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
     const loadingOverlay = document.getElementById('loading-overlay');
+    const debugInfo = document.getElementById('debug-info');
+    const debugContent = document.getElementById('debug-content');
 
     function highlight(e) {
         e.preventDefault();
@@ -146,14 +148,14 @@ function startApp() {
                 faceapi.draw.drawDetections(faceCanvas, resizedDetections);
                 faceapi.draw.drawFaceLandmarks(faceCanvas, resizedDetections);
 
-                // 얼굴 영역에서 피부색 추출
+                // 얼굴 영역에서 피부색 추출 (faceCanvas에 점 찍기 위해 context 전달)
                 const detection = detections[0];
-                const skinColor = extractSkinColor(img, detection);
+                const skinColor = extractSkinColor(img, detection, faceCanvas); // Pass faceCanvas for Visual Debugging
 
                 // 피부색 기반 퍼스널컬러 분석
-                const season = analyzePersonalColor(skinColor);
-                loadingOverlay.classList.add('hidden'); // Hide loading before showing result
-                displayResult(season, personalColors[season]);
+                const analysis = analyzePersonalColor(skinColor);
+                loadingOverlay.classList.add('hidden');
+                displayResult(analysis.season, personalColors[analysis.season], analysis.debug);
 
             } catch (err) {
                 console.error('Face detection failed:', err);
@@ -165,7 +167,7 @@ function startApp() {
     }
 
     // 얼굴 랜드마크에서 피부색 추출
-    function extractSkinColor(img, detection) {
+    function extractSkinColor(img, detection, visualCanvas) {
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
@@ -224,6 +226,24 @@ function startApp() {
             }
         });
 
+        // Visual Debugging: Draw sample points on the face canvas
+        if (visualCanvas) {
+            const vCtx = visualCanvas.getContext('2d');
+            // Scale factor if faceCanvas is displayed at different size than natual img?
+            // faceCanvas size is matched to displaySize (which is natural img size in current logic or scaled CSS?)
+            // We matched dimensions earlier: faceapi.matchDimensions(faceCanvas, displaySize);
+            // displaySize was { width: img.width, height: img.height }
+
+            samplePoints.forEach(point => {
+                vCtx.beginPath();
+                vCtx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+                vCtx.fillStyle = '#00FF00'; // Green dot
+                vCtx.fill();
+                vCtx.strokeStyle = 'white';
+                vCtx.stroke();
+            });
+        }
+
         return {
             r: totalR / validSamples,
             g: totalG / validSamples,
@@ -261,40 +281,58 @@ function startApp() {
     function analyzePersonalColor(skinColor) {
         const lab = rgbToLab(skinColor.r, skinColor.g, skinColor.b);
 
-        // 웜톤/쿨톤 판별: b값 (노란색-파란색 축)
-        // b > 0: 노란 기운 (웜톤)
-        // b < 0: 푸른 기운 (쿨톤)
-        const isWarm = lab.b > 10;
+        // 로직 개선
+        // Warm vs Cool:
+        // b (Yellow-Blue Axis): 높은 값일수록 웜(Yellow), 낮은 값일수록 쿨(Blue)
+        // a (red-green axis): 홍조.
+        // 단순히 b > 10은 너무 낮을 수 있음. b와 a의 비율도 고려하거나 b Threshold를 높임.
 
-        // 밝기 판별: L값
-        // L > 65: 밝은 피부 (봄/여름)
-        // L < 65: 어두운 피부 (가을/겨울)
-        const isBright = lab.L > 60;
+        // 1. 웜/쿨 판단
+        // b가 20 이상이면 확실히 웜. 10 이하면 쿨. 그 사이는 a값과의 관계로 판단.
+        // 또는 b > a * 1.2 등 (옐로우가 레드보다 훨씬 강함)
 
-        // a값: 피부의 붉은기
-        // 높으면 생기있는 피부, 낮으면 차분한 피부
-        const hasRedness = lab.a > 10;
+        let isWarm = false;
+        let warmScore = 0; // 디버깅용 점수
 
-        console.log('피부 분석:', { lab, isWarm, isBright, hasRedness });
-
-        if (isWarm) {
-            // 웜톤
-            if (isBright || hasRedness) {
-                return '봄 웜톤'; // 밝고 화사한 웜톤
-            } else {
-                return '가을 웜톤'; // 차분하고 깊은 웜톤
-            }
+        // Heuristic 1: Absolute b value
+        if (lab.b > 18) {
+            isWarm = true;
+            warmScore += 2;
+        } else if (lab.b < 12) {
+            isWarm = false;
+            warmScore -= 2;
         } else {
-            // 쿨톤
-            if (isBright) {
-                return '여름 쿨톤'; // 밝고 부드러운 쿨톤
+            // Heuristic 2: Relative to a
+            // 웜톤은 옐로우 베이스(b)가 레드(a)보다 강한 경향
+            if (lab.b > lab.a) {
+                isWarm = true;
+                warmScore += 1;
             } else {
-                return '겨울 쿨톤'; // 선명하고 차가운 쿨톤
+                isWarm = false;
+                warmScore -= 1;
             }
         }
+
+        // 2. 계절 판단 (명도/채도)
+        // L > 65: Light (봄/여름)
+        // L <= 65: Deep/Dark (가을/겨울)
+        const isBright = lab.L > 64;
+
+        // 결과 결정
+        let season = '';
+        if (isWarm) {
+            season = isBright ? '봄 웜톤' : '가을 웜톤';
+        } else {
+            season = isBright ? '여름 쿨톤' : '겨울 쿨톤';
+        }
+
+        return {
+            season: season,
+            debug: { isWarm, isBright, lab, rgb: skinColor, warmScore }
+        };
     }
 
-    function displayResult(season, data) {
+    function displayResult(season, data, debugData) {
         resultSeason.innerHTML = `<i class="fas fa-sun"></i> ${season}`;
 
         resultPalette.innerHTML = '<h5>대표 컬러</h5>';
@@ -336,6 +374,21 @@ function startApp() {
             </div>
         `;
 
+        // Show Debug Info
+        debugInfo.style.display = 'block';
+        if (debugData) {
+            const { lab, rgb, isWarm, isBright, warmScore } = debugData;
+            debugContent.innerHTML = `
+                <p><strong>RGB:</strong> R=${Math.round(rgb.r)}, G=${Math.round(rgb.g)}, B=${Math.round(rgb.b)}</p>
+                <p><strong>Lab:</strong> L=${lab.L.toFixed(2)}, a=${lab.a.toFixed(2)}, b=${lab.b.toFixed(2)}</p>
+                <p><strong>판단 기준:</strong></p>
+                <ul>
+                    <li>Warm/Cool(b): ${lab.b.toFixed(2)} (${isWarm ? 'Warm' : 'Cool'}) [Score: ${warmScore}]</li>
+                    <li>Bright/Dark(L): ${lab.L.toFixed(2)} (${isBright ? 'Bright' : 'Dark'})</li>
+                </ul>
+            `;
+        }
+
         resultSection.classList.remove('hidden');
         resultSection.scrollIntoView({ behavior: 'smooth' });
     }
@@ -349,6 +402,7 @@ function startApp() {
         seasonalDescriptions.innerHTML = '';
         resetButton.classList.add('hidden');
         loadingOverlay.classList.add('hidden');
+        debugInfo.style.display = 'none';
         fileInput.value = '';
         const context = faceCanvas.getContext('2d');
         context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
