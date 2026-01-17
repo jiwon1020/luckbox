@@ -53,55 +53,46 @@ const personalColors = {
     },
 };
 
-// --- DOM Element Selection ---
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     const imageUploader = document.getElementById('image-uploader');
     const uploadArea = document.querySelector('.upload-area');
+    const imageDisplayArea = document.querySelector('.image-display-area');
     const imagePreview = document.querySelector('.image-preview');
+    const paletteOverlay = document.getElementById('palette-overlay');
     const resultSection = document.getElementById('result-section');
     const resultSeason = document.getElementById('result-season');
     const resultPalette = document.getElementById('result-palette');
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
 
-    // --- Event Listeners ---
-    if (imageUploader) {
-        imageUploader.addEventListener('click', () => fileInput.click());
+    if (uploadArea) {
+        uploadArea.addEventListener('click', () => fileInput.click());
         
         ['dragover', 'dragenter'].forEach(eventName => {
-            imageUploader.addEventListener(eventName, (e) => {
+            uploadArea.addEventListener(eventName, (e) => {
                 e.preventDefault();
                 uploadArea.classList.add('dragover');
             });
         });
 
-        imageUploader.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
 
-        imageUploader.addEventListener('drop', (e) => {
+        uploadArea.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) {
-                handleFile(e.dataTransfer.files[0]);
-            }
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
         });
     }
 
     if (fileInput) {
         fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFile(e.target.files[0]);
-            }
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
         });
     }
 
-    if (resetButton) {
-        resetButton.addEventListener('click', resetAll);
-    }
+    if (resetButton) resetButton.addEventListener('click', resetAll);
 
-    // --- Functions ---
     function handleFile(file) {
         if (!file.type.startsWith('image/')) {
             alert('이미지 파일(JPG, PNG)만 업로드할 수 있습니다.');
@@ -111,8 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const reader = new FileReader();
         reader.onload = (e) => {
             imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image">`;
-            uploadArea.parentElement.style.display = 'none';
-            imagePreview.style.display = 'block';
+            uploadArea.style.display = 'none';
+            imageDisplayArea.style.display = 'block';
             resetButton.classList.remove('hidden');
             analyzeImage(e.target.result);
         };
@@ -120,12 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function analyzeImage(dataUrl) {
-        // Simplified analysis based on image data hash (for demonstration)
         const seasons = Object.keys(personalColors);
         let hash = 0;
         for (let i = 0; i < dataUrl.length; i++) {
             hash = (hash << 5) - hash + dataUrl.charCodeAt(i);
-            hash |= 0; // Convert to 32bit integer
+            hash |= 0;
         }
 
         const index = Math.abs(hash) % seasons.length;
@@ -140,24 +130,26 @@ document.addEventListener('DOMContentLoaded', () => {
         data.colors.forEach(color => {
             const colorItem = document.createElement('div');
             colorItem.className = 'color-item';
-            colorItem.innerHTML = `
-                <div class="color-box" style="background-color: ${color.code};"></div>
-                <span class="color-name">${color.name}</span>
-            `;
+            colorItem.innerHTML = `<div class="color-box" style="background-color: ${color.code};"></div><span class="color-name">${color.name}</span>`;
             resultPalette.appendChild(colorItem);
+        });
+
+        paletteOverlay.innerHTML = '';
+        data.colors.forEach(color => {
+            const chip = document.createElement('div');
+            chip.className = 'palette-color-chip';
+            chip.style.backgroundColor = color.code;
+            chip.title = color.name;
+            paletteOverlay.appendChild(chip);
         });
 
         seasonalDescriptions.innerHTML = `
             <div class="description-content">
                 <p class="lead">${data.description}</p>
                 <h3><i class="fas fa-key"></i> 이미지 키워드</h3>
-                <div class="keywords">
-                    ${data.keywords.map(k => `<span>#${k}</span>`).join('')}
-                </div>
-                <h3><i class="fas fa-tshirt"></i> 스타일링 팁</h3>
-                <p>${data.styling}</p>
-                <h3><i class="fas fa-magic"></i> 메이크업 팁</h3>
-                <p>${data.makeup}</p>
+                <div class="keywords">${data.keywords.map(k => `<span>#${k}</span>`).join('')}</div>
+                <h3><i class="fas fa-tshirt"></i> 스타일링 팁</h3><p>${data.styling}</p>
+                <h3><i class="fas fa-magic"></i> 메이크업 팁</h3><p>${data.makeup}</p>
             </div>
         `;
 
@@ -166,11 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function resetAll() {
-        uploadArea.parentElement.style.display = 'block';
-        imagePreview.style.display = 'none';
+        uploadArea.style.display = 'flex';
+        imageDisplayArea.style.display = 'none';
         imagePreview.innerHTML = '';
+        paletteOverlay.innerHTML = '';
         resultSection.classList.add('hidden');
-        seasonalDescriptions.innerHTML = ''; 
+        seasonalDescriptions.innerHTML = '';
         resetButton.classList.add('hidden');
         fileInput.value = '';
     }
