@@ -48,10 +48,8 @@ const resultSection = document.getElementById('result-section');
 const resultSeason = document.getElementById('result-season');
 const resultPalette = document.getElementById('result-palette');
 const seasonalDescriptions = document.getElementById('seasonal-descriptions');
-const analyzeButton = document.getElementById('analyze-button');
 const resetButton = document.getElementById('reset-button');
 const uploadArea = document.querySelector('.upload-area');
-const analysisSection = document.getElementById('analysis-section');
 let imageDataUrl = null;
 
 imageUploader.addEventListener('click', () => fileInput.click());
@@ -81,23 +79,15 @@ fileInput.addEventListener('change', (event) => {
     }
 });
 
-analyzeButton.addEventListener('click', () => {
-    if (imageDataUrl) {
-        analyzeImage(imageDataUrl);
-    }
-});
-
 resetButton.addEventListener('click', () => {
     imagePreview.innerHTML = '';
     imagePreview.classList.remove('active');
     resultSection.classList.add('hidden');
     seasonalDescriptions.innerHTML = ''; 
     resetButton.classList.add('hidden');
-    analyzeButton.classList.add('hidden');
     uploadArea.style.display = 'flex'; 
     fileInput.value = '';
     imageDataUrl = null;
-    analysisSection.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
 });
 
 function handleFile(file) {
@@ -112,8 +102,8 @@ function handleFile(file) {
         imagePreview.innerHTML = `<img src="${imageDataUrl}" alt="Uploaded Image">`;
         imagePreview.classList.add('active');
         uploadArea.style.display = 'none';
-        analyzeButton.classList.remove('hidden');
         resetButton.classList.remove('hidden');
+        analyzeImage(imageDataUrl);
     };
     reader.readAsDataURL(file);
 }
@@ -179,7 +169,5 @@ function displayResult(season, seasonData) {
         seasonalDescriptions.appendChild(seasonDiv);
     }
 
-    analysisSection.style.gridTemplateColumns = '1fr';
     resultSection.classList.remove('hidden');
-    analyzeButton.classList.add('hidden');
 }
