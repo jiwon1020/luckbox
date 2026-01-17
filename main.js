@@ -211,10 +211,14 @@ function startApp() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 먼저 UI 이벤트 리스너 등록
+    startApp();
+
+    // 그 다음 face-api 모델 로딩 (실패해도 기본 기능은 작동)
     Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
         faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
         faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
         faceapi.nets.faceExpressionNet.loadFromUri('/models')
-    ]).then(startApp).catch(err => console.error('Models failed to load', err));
+    ]).catch(err => console.error('Models failed to load', err));
 });
