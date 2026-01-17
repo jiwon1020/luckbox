@@ -119,40 +119,176 @@ function startApp() {
             imageDisplayArea.style.display = 'block';
             resetButton.classList.remove('hidden');
 
-            // face-api 얼굴 감지 (모델 로딩 실패해도 분석은 계속 진행)
+            // face-api로 얼굴 감지
             try {
                 const displaySize = { width: img.width, height: img.height };
                 faceapi.matchDimensions(faceCanvas, displaySize);
 
-                const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
-                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks();
 
+                if (detections.length === 0) {
+                    alert('얼굴을 감지할 수 없습니다. 정면 얼굴 사진을 업로드해주세요.');
+                    resetAll();
+                    return;
+                }
+
+                if (detections.length > 1) {
+                    alert('한 명의 얼굴만 있는 사진을 업로드해주세요.');
+                    resetAll();
+                    return;
+                }
+
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
                 const context = faceCanvas.getContext('2d');
                 context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
                 faceapi.draw.drawDetections(faceCanvas, resizedDetections);
                 faceapi.draw.drawFaceLandmarks(faceCanvas, resizedDetections);
-                faceapi.draw.drawFaceExpressions(faceCanvas, resizedDetections);
+
+                // 얼굴 영역에서 피부색 추출
+                const detection = detections[0];
+                const skinColor = extractSkinColor(img, detection);
+
+                // 피부색 기반 퍼스널컬러 분석
+                const season = analyzePersonalColor(skinColor);
+                displayResult(season, personalColors[season]);
+
             } catch (err) {
                 console.error('Face detection failed:', err);
+                alert('얼굴 분석에 실패했습니다. 다른 사진을 시도해주세요.');
+                resetAll();
             }
-
-            analyzeImage(imgUrl);
         };
         img.src = imgUrl;
     }
 
-    function analyzeImage(dataUrl) {
-        const seasons = Object.keys(personalColors);
-        let hash = 0;
-        for (let i = 0; i < dataUrl.length; i++) {
-            hash = (hash << 5) - hash + dataUrl.charCodeAt(i);
-            hash |= 0;
-        }
+    // 얼굴 랜드마크에서 피부색 추출
+    function extractSkinColor(img, detection) {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
 
-        const index = Math.abs(hash) % seasons.length;
-        const season = seasons[index];
-        const seasonData = personalColors[season];
-        displayResult(season, seasonData);
+        const landmarks = detection.landmarks;
+        const positions = landmarks.positions;
+
+        // 볼 영역 추출 (왼쪽 볼, 오른쪽 볼)
+        // 랜드마크: 1-4 (왼쪽 턱 라인), 12-15 (오른쪽 턱 라인)
+        // 이마 영역: 눈썹 위
+        const leftCheek = positions[2];  // 왼쪽 볼
+        const rightCheek = positions[14]; // 오른쪽 볼
+        const nose = positions[30]; // 코 끝
+
+        // 이마 영역 (눈썹 중간 위)
+        const leftEyebrow = positions[19];
+        const rightEyebrow = positions[24];
+        const foreheadX = (leftEyebrow.x + rightEyebrow.x) / 2;
+        const foreheadY = leftEyebrow.y - 30;
+
+        // 샘플 포인트에서 색상 추출
+        const samplePoints = [
+            { x: leftCheek.x, y: leftCheek.y },
+            { x: rightCheek.x, y: rightCheek.y },
+            { x: foreheadX, y: foreheadY },
+            { x: nose.x - 15, y: nose.y - 20 }, // 코 옆 왼쪽
+            { x: nose.x + 15, y: nose.y - 20 }, // 코 옆 오른쪽
+        ];
+
+        let totalR = 0, totalG = 0, totalB = 0;
+        let validSamples = 0;
+
+        samplePoints.forEach(point => {
+            const x = Math.round(point.x);
+            const y = Math.round(point.y);
+
+            if (x >= 0 && x < canvas.width && y >= 0 && y < canvas.height) {
+                // 5x5 영역의 평균 색상 추출
+                const imageData = ctx.getImageData(Math.max(0, x - 2), Math.max(0, y - 2), 5, 5);
+                const data = imageData.data;
+
+                let r = 0, g = 0, b = 0, count = 0;
+                for (let i = 0; i < data.length; i += 4) {
+                    r += data[i];
+                    g += data[i + 1];
+                    b += data[i + 2];
+                    count++;
+                }
+
+                totalR += r / count;
+                totalG += g / count;
+                totalB += b / count;
+                validSamples++;
+            }
+        });
+
+        return {
+            r: totalR / validSamples,
+            g: totalG / validSamples,
+            b: totalB / validSamples
+        };
+    }
+
+    // RGB를 Lab 색 공간으로 변환 (더 정확한 색상 분석을 위해)
+    function rgbToLab(r, g, b) {
+        // RGB to XYZ
+        r = r / 255;
+        g = g / 255;
+        b = b / 255;
+
+        r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+        g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+        b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+
+        let x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+        let y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.00000;
+        let z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+
+        x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + 16/116;
+        y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + 16/116;
+        z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
+
+        return {
+            L: (116 * y) - 16,  // 밝기 (0-100)
+            a: 500 * (x - y),   // 녹색-빨간색 (-128 ~ 128)
+            b: 200 * (y - z)    // 파란색-노란색 (-128 ~ 128)
+        };
+    }
+
+    // 피부색 기반 퍼스널컬러 분석
+    function analyzePersonalColor(skinColor) {
+        const lab = rgbToLab(skinColor.r, skinColor.g, skinColor.b);
+
+        // 웜톤/쿨톤 판별: b값 (노란색-파란색 축)
+        // b > 0: 노란 기운 (웜톤)
+        // b < 0: 푸른 기운 (쿨톤)
+        const isWarm = lab.b > 10;
+
+        // 밝기 판별: L값
+        // L > 65: 밝은 피부 (봄/여름)
+        // L < 65: 어두운 피부 (가을/겨울)
+        const isBright = lab.L > 60;
+
+        // a값: 피부의 붉은기
+        // 높으면 생기있는 피부, 낮으면 차분한 피부
+        const hasRedness = lab.a > 10;
+
+        console.log('피부 분석:', { lab, isWarm, isBright, hasRedness });
+
+        if (isWarm) {
+            // 웜톤
+            if (isBright || hasRedness) {
+                return '봄 웜톤'; // 밝고 화사한 웜톤
+            } else {
+                return '가을 웜톤'; // 차분하고 깊은 웜톤
+            }
+        } else {
+            // 쿨톤
+            if (isBright) {
+                return '여름 쿨톤'; // 밝고 부드러운 쿨톤
+            } else {
+                return '겨울 쿨톤'; // 선명하고 차가운 쿨톤
+            }
+        }
     }
 
     function displayResult(season, data) {
