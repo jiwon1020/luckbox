@@ -6,6 +6,7 @@
     --text-color: #333;
     --subtle-text-color: #8d8d8d;
     --button-text-color: #ffffff;
+    --border-color: #e0e0e0;
 }
 
 body, html {
@@ -28,42 +29,40 @@ body, html {
 
 header {
     padding: 1.5rem;
-    background-color: #fff;
+    text-align: center;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
 }
 
-.back-button {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-color);
-    cursor: pointer;
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+header p {
+    margin: 0.25rem 0 0;
+    opacity: 0.9;
 }
 
 main {
     flex-grow: 1;
-    padding: 0 1.5rem;
+    padding: 1.5rem;
     text-align: center;
     overflow-y: auto;
-}
-
-.title_text h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0;
-}
-
-.title_text p {
-    font-size: 1rem;
-    color: var(--subtle-text-color);
-    margin: 0.5rem 0 2rem;
 }
 
 .card {
     background-color: var(--card-background-color);
     border-radius: 12px;
-    border: 1px solid #e0e0e0;
+    border: 2px dashed var(--border-color);
     padding: 2rem;
     margin-bottom: 2rem;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.card:hover {
+    border-color: var(--primary-color);
 }
 
 #image-uploader .upload-area .icon {
@@ -74,6 +73,12 @@ main {
 
 #image-uploader .upload-area p {
     font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+#image-uploader .upload-area span {
+    font-size: 0.8rem;
+    color: var(--subtle-text-color);
 }
 
 .image-preview {
@@ -83,17 +88,24 @@ main {
     margin-top: 1rem;
     border-radius: 8px;
     overflow: hidden;
+    display: none; /* Initially hidden */
+}
+
+.image-preview.active {
+    display: block;
 }
 
 .image-preview img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: contain;
     display: block;
 }
 
 .illustration {
     width: 80%;
-    margin: 0 auto;
+    max-width: 250px;
+    margin: 0 auto 2rem;
 }
 
 .illustration img {
@@ -103,6 +115,8 @@ main {
 
 footer {
     padding: 1.5rem;
+    background-color: #fff;
+    border-top: 1px solid #e0e0e0;
 }
 
 #analyze-button, #reset-button {
@@ -124,7 +138,7 @@ footer {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-#analyze-button.hidden, #reset-button.hidden {
+.hidden {
     display: none;
 }
 
@@ -133,6 +147,7 @@ footer {
     background-color: var(--card-background-color);
     border-radius: 12px;
     margin-top: 2rem;
+    border: 1px solid var(--border-color);
 }
 
 #result-season {
@@ -160,13 +175,10 @@ footer {
     height: 50px;
     border-radius: 50%;
     margin-bottom: 0.5rem;
+    border: 1px solid var(--border-color);
 }
 
 .color-name {
     font-size: 0.8rem;
     color: var(--subtle-text-color);
-}
-
-.hidden {
-    display: none;
 }

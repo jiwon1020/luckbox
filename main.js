@@ -80,8 +80,6 @@ analyzeButton.addEventListener('click', () => {
     if (imageDataUrl) {
         analyzeImage(imageDataUrl);
     }
-    analyzeButton.classList.add('hidden');
-    resetButton.classList.remove('hidden');
 });
 
 resetButton.addEventListener('click', () => {
@@ -112,6 +110,7 @@ function handleFile(file) {
         illustration.style.display = 'none'; 
         imageUploader.style.cursor = 'default';
         analyzeButton.classList.remove('hidden');
+        resetButton.classList.remove('hidden');
     };
     reader.readAsDataURL(file);
 }
@@ -151,4 +150,5 @@ function displayResult(season, palette) {
         resultPalette.appendChild(colorItem);
     });
     resultSection.classList.remove('hidden');
+    analyzeButton.classList.add('hidden');
 }
