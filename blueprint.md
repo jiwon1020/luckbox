@@ -20,14 +20,14 @@ This project aims to create a web application that analyzes a user's facial phot
 *   **UI Enhancements:**
     *   Uploaded images are scaled correctly using `object-fit: contain`.
     *   Color names are displayed alongside the color swatches.
+*   **Button Labels and Responsive Design:**
+    *   Button labels are changed to "Start" and "Reset".
+    *   The website is fully responsive.
 
-## Current Task: Button Labels and Responsive Design
+## Current Task: Consistent Analysis Results
 
-*   **Objective:** Change button labels and make the website fully responsive.
+*   **Objective:** Ensure that the same uploaded image always produces the same analysis result.
 *   **Plan:**
-    1.  **Update HTML (`index.html`):**
-        *   Change the "Analyze" button text to "Start".
-        *   Change the "Reset" button text to "Reset".
-    2.  **Update CSS (`style.css`):**
-        *   Add media queries to adjust the layout and font sizes for different screen sizes (e.g., mobile, tablet, desktop).
-        *   Ensure all elements, including the uploader, image preview, and results section, scale gracefully.
+    1.  **Update JavaScript (`main.js`):**
+        *   Modify the `analyzeImage` function to generate a consistent result based on the image data.
+        *   Instead of a random result, a simple hashing function will be applied to the image's data URL to deterministically select a personal color season.

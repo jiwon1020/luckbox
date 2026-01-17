@@ -38,6 +38,7 @@ const resultPalette = document.getElementById('result-palette');
 const analyzeButton = document.getElementById('analyze-button');
 const resetButton = document.getElementById('reset-button');
 const uploadArea = document.querySelector('.upload-area');
+let imageDataUrl = null;
 
 imageUploader.addEventListener('click', () => {
     if (!imagePreview.querySelector('img')) {
@@ -75,7 +76,9 @@ fileInput.addEventListener('change', (event) => {
 });
 
 analyzeButton.addEventListener('click', () => {
-    analyzeImage();
+    if (imageDataUrl) {
+        analyzeImage(imageDataUrl);
+    }
     analyzeButton.classList.add('hidden');
     resetButton.classList.remove('hidden');
 });
@@ -88,6 +91,7 @@ resetButton.addEventListener('click', () => {
     uploadArea.style.display = 'block';
     fileInput.value = '';
     imageUploader.style.cursor = 'pointer';
+    imageDataUrl = null;
 });
 
 function handleFile(file) {
@@ -98,7 +102,8 @@ function handleFile(file) {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image">`;
+        imageDataUrl = e.target.result;
+        imagePreview.innerHTML = `<img src="${imageDataUrl}" alt="Uploaded Image">`;
         uploadArea.style.display = 'none';
         imageUploader.style.cursor = 'default';
         analyzeButton.classList.remove('hidden');
@@ -106,11 +111,20 @@ function handleFile(file) {
     reader.readAsDataURL(file);
 }
 
-function analyzeImage() {
+function analyzeImage(dataUrl) {
     const seasons = Object.keys(personalColors);
-    const randomSeason = seasons[Math.floor(Math.random() * seasons.length)];
-    const palette = personalColors[randomSeason];
-    displayResult(randomSeason, palette);
+    // Simple hash function to get a consistent index from the image data
+    let hash = 0;
+    for (let i = 0; i < dataUrl.length; i++) {
+        const char = dataUrl.charCodeAt(i);
+        hash = (hash << 5) - hash + char;
+        hash |= 0; // Convert to 32bit integer
+    }
+
+    const index = Math.abs(hash) % seasons.length;
+    const season = seasons[index];
+    const palette = personalColors[season];
+    displayResult(season, palette);
 }
 
 function displayResult(season, palette) {
