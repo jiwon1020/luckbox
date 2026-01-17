@@ -63,6 +63,8 @@ function startApp() {
     const resultSection = document.getElementById('result-section');
     const resultSeason = document.getElementById('result-season');
     const resultPalette = document.getElementById('result-palette');
+    const seasonScores = document.getElementById('season-scores');
+    const scoreList = document.getElementById('score-list');
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -155,7 +157,7 @@ function startApp() {
                 // 피부색 기반 퍼스널컬러 분석
                 const analysis = analyzePersonalColor(skinColor);
                 loadingOverlay.classList.add('hidden');
-                displayResult(analysis.season, personalColors[analysis.season], analysis.debug);
+                displayResult(analysis.season, personalColors[analysis.season], analysis.debug, analysis.scores);
 
             } catch (err) {
                 console.error('Face detection failed:', err);
@@ -244,6 +246,13 @@ function startApp() {
             });
         }
 
+        // Check if we have valid samples
+        if (validSamples === 0) {
+            console.warn('No valid skin samples found within canvas bounds.');
+            // Fallback: return default or try center of image
+            return { r: 128, g: 128, b: 128 }; // Default Grey
+        }
+
         return {
             r: totalR / validSamples,
             g: totalG / validSamples,
@@ -279,6 +288,12 @@ function startApp() {
 
     // 피부색 기반 퍼스널컬러 분석
     function analyzePersonalColor(skinColor) {
+        // Validation for NaN
+        if (isNaN(skinColor.r) || isNaN(skinColor.g) || isNaN(skinColor.b)) {
+            console.error('Invalid Skin Color:', skinColor);
+            skinColor = { r: 128, g: 128, b: 128 };
+        }
+
         const lab = rgbToLab(skinColor.r, skinColor.g, skinColor.b);
 
         // 로직 개선
@@ -326,13 +341,64 @@ function startApp() {
             season = isBright ? '여름 쿨톤' : '겨울 쿨톤';
         }
 
+        // 3. 점수 계산 로직 추가
+        // 각 계절별 대표 Centroid (이상적인 L, a, b 값) 정의 - 간략화된 모델
+        // 봄:  L=70, a=20, b=25
+        // 여름: L=70, a=10, b=-5
+        // 가을: L=50, a=20, b=25
+        // 겨울: L=40, a=10, b=-5
+        // 실제로는 더 복잡하지만, 여기서는 상대적인 거리로 점수화
+
+        const centroids = {
+            '봄 웜톤': { L: 72, a: 18, b: 22 },
+            '여름 쿨톤': { L: 72, a: 12, b: -2 },
+            '가을 웜톤': { L: 55, a: 18, b: 22 },
+            '겨울 쿨톤': { L: 45, a: 12, b: -2 }
+        };
+
+        let scores = {};
+        let totalScore = 0;
+
+        for (const [season, center] of Object.entries(centroids)) {
+            // 유클리드 거리 계산
+            const L = isNaN(lab.L) ? 50 : lab.L;
+            const a = isNaN(lab.a) ? 0 : lab.a;
+            const b = isNaN(lab.b) ? 0 : lab.b;
+
+            const dist = Math.sqrt(
+                Math.pow(L - center.L, 2) +
+                Math.pow(a - center.a, 2) +
+                Math.pow(b - center.b, 2)
+            );
+            // 거리가 가까울수록 높은 점수 (역수 이용)
+            scores[season] = 1 / (dist + 1); // +1 to avoid division by zero
+            totalScore += scores[season];
+        }
+
+        if (isNaN(totalScore) || totalScore === 0) totalScore = 1; // Prevent division by zero
+
+        // 백분율 정규화 및 정렬
+        const sortedScores = Object.entries(scores)
+            .map(([season, score]) => {
+                let percent = (score / totalScore) * 100;
+                if (isNaN(percent)) percent = 0;
+                return { season, percent: Math.round(percent) };
+            })
+            .sort((a, b) => b.percent - a.percent);
+
+        // 가장 높은 점수의 계절을 최종 결과로 선택 (기존 로직과 병행하거나 대체 가능)
+        // 여기서는 기존 로직으로 season을 먼저 구하고, 점수는 참고용으로 보여줌 
+        // 혹은 점수 기반으로 덮어쓸 수도 있음. 점수가 더 세밀하므로 덮어쓰기 시도.
+        season = sortedScores[0].season;
+
         return {
             season: season,
-            debug: { isWarm, isBright, lab, rgb: skinColor, warmScore }
+            debug: { isWarm, isBright, lab, rgb: skinColor, warmScore },
+            scores: sortedScores
         };
     }
 
-    function displayResult(season, data, debugData) {
+    function displayResult(season, data, debugData, scores) {
         resultSeason.innerHTML = `<i class="fas fa-sun"></i> ${season}`;
 
         resultPalette.innerHTML = '<h5>대표 컬러</h5>';
@@ -374,6 +440,28 @@ function startApp() {
             </div>
         `;
 
+        // Show Scores
+        if (scores) {
+            seasonScores.classList.remove('hidden');
+            scoreList.innerHTML = '';
+            scores.forEach(s => {
+                const item = document.createElement('div');
+                item.className = 'score-item';
+                // Highlight the winner
+                const isWinner = s.season === season ? 'winner' : '';
+                item.innerHTML = `
+                    <div class="score-label">
+                        <span class="${isWinner}">${s.season}</span>
+                        <span class="score-percent">${s.percent}%</span>
+                    </div>
+                    <div class="score-bar-bg">
+                        <div class="score-bar-fill ${isWinner}" style="width: ${s.percent}%"></div>
+                    </div>
+                `;
+                scoreList.appendChild(item);
+            });
+        }
+
         // Show Debug Info
         debugInfo.style.display = 'block';
         if (debugData) {
@@ -402,6 +490,7 @@ function startApp() {
         seasonalDescriptions.innerHTML = '';
         resetButton.classList.add('hidden');
         loadingOverlay.classList.add('hidden');
+        seasonScores.classList.add('hidden');
         debugInfo.style.display = 'none';
         fileInput.value = '';
         const context = faceCanvas.getContext('2d');
