@@ -65,6 +65,7 @@ function startApp() {
     const resultPalette = document.getElementById('result-palette');
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
+    const loadingOverlay = document.getElementById('loading-overlay');
 
     function highlight(e) {
         e.preventDefault();
@@ -118,6 +119,7 @@ function startApp() {
             uploadArea.style.display = 'none';
             imageDisplayArea.style.display = 'block';
             resetButton.classList.remove('hidden');
+            loadingOverlay.classList.remove('hidden'); // Show loading
 
             // face-api로 얼굴 감지
             try {
@@ -150,6 +152,7 @@ function startApp() {
 
                 // 피부색 기반 퍼스널컬러 분석
                 const season = analyzePersonalColor(skinColor);
+                loadingOverlay.classList.add('hidden'); // Hide loading before showing result
                 displayResult(season, personalColors[season]);
 
             } catch (err) {
@@ -243,9 +246,9 @@ function startApp() {
         let y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.00000;
         let z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
 
-        x = x > 0.008856 ? Math.pow(x, 1/3) : (7.787 * x) + 16/116;
-        y = y > 0.008856 ? Math.pow(y, 1/3) : (7.787 * y) + 16/116;
-        z = z > 0.008856 ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
+        x = x > 0.008856 ? Math.pow(x, 1 / 3) : (7.787 * x) + 16 / 116;
+        y = y > 0.008856 ? Math.pow(y, 1 / 3) : (7.787 * y) + 16 / 116;
+        z = z > 0.008856 ? Math.pow(z, 1 / 3) : (7.787 * z) + 16 / 116;
 
         return {
             L: (116 * y) - 16,  // 밝기 (0-100)
@@ -345,6 +348,7 @@ function startApp() {
         resultSection.classList.add('hidden');
         seasonalDescriptions.innerHTML = '';
         resetButton.classList.add('hidden');
+        loadingOverlay.classList.add('hidden');
         fileInput.value = '';
         const context = faceCanvas.getContext('2d');
         context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);

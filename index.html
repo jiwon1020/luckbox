@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +11,9 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8199595447179560"
-     crossorigin="anonymous"></script>
+        crossorigin="anonymous"></script>
 </head>
+
 <body>
     <div id="app">
         <header>
@@ -47,6 +49,13 @@
                             <div class="image-preview"></div>
                             <canvas id="face-canvas"></canvas>
                             <div id="palette-overlay"></div>
+                        </div>
+                        <div id="loading-overlay" class="hidden">
+                            <div class="loading-content">
+                                <i class="fas fa-magic fa-spin"></i>
+                                <p>AI가 분석 중이에요...</p>
+                                <span class="cute-icon">✨</span>
+                            </div>
                         </div>
                     </div>
                     <button id="reset-button" class="hidden">다시 진단하기</button>
@@ -88,4 +97,5 @@
     </div>
     <script src="main.js"></script>
 </body>
+
 </html>
