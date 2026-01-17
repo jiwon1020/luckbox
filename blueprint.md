@@ -23,11 +23,22 @@ This project aims to create a web application that analyzes a user's facial phot
 *   **Button Labels and Responsive Design:**
     *   Button labels are changed to "Start" and "Reset".
     *   The website is fully responsive.
+*   **Consistent Analysis Results:**
+    *   The same uploaded image always produces the same analysis result.
 
-## Current Task: Consistent Analysis Results
+## Current Task: Modern UI Redesign
 
-*   **Objective:** Ensure that the same uploaded image always produces the same analysis result.
+*   **Objective:** Redesign the application to match the provided UI mock-up, incorporating a purple-themed, modern, and mobile-first design.
 *   **Plan:**
-    1.  **Update JavaScript (`main.js`):**
-        *   Modify the `analyzeImage` function to generate a consistent result based on the image data.
-        *   Instead of a random result, a simple hashing function will be applied to the image's data URL to deterministically select a personal color season.
+    1.  **Update HTML (`index.html`):**
+        *   Re-structure the HTML to reflect the new layout, including a header, main content area, and a footer with a prominent action button.
+        *   Add a container for the main card and an illustration.
+        *   Change the title to "Personal Color Analysis".
+    2.  **Update CSS (`style.css`):**
+        *   Implement a new color palette with shades of purple, gray, and white.
+        *   Re-style the body to have a light background and a purple header.
+        *   Design a new card-based layout for the main content.
+        *   Style the file uploader, buttons, and result display to match the mock-up.
+        *   Add a placeholder for the illustration.
+    3.  **Update JavaScript (`main.js`):**
+        *   Ensure the existing functionality (image upload, analysis, reset) works with the new HTML structure.

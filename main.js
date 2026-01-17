@@ -38,6 +38,7 @@ const resultPalette = document.getElementById('result-palette');
 const analyzeButton = document.getElementById('analyze-button');
 const resetButton = document.getElementById('reset-button');
 const uploadArea = document.querySelector('.upload-area');
+const illustration = document.querySelector('.illustration');
 let imageDataUrl = null;
 
 imageUploader.addEventListener('click', () => {
@@ -49,18 +50,18 @@ imageUploader.addEventListener('click', () => {
 imageUploader.addEventListener('dragover', (event) => {
     event.preventDefault();
     if (!imagePreview.querySelector('img')) {
-        imageUploader.style.backgroundColor = '#f7f7f7';
+        imageUploader.style.borderColor = 'var(--primary-color)';
     }
 });
 
 imageUploader.addEventListener('dragleave', () => {
-    imageUploader.style.backgroundColor = 'var(--card-background)';
+    imageUploader.style.borderColor = 'var(--border-color)';
 });
 
 imageUploader.addEventListener('drop', (event) => {
     event.preventDefault();
     if (!imagePreview.querySelector('img')) {
-        imageUploader.style.backgroundColor = 'var(--card-background)';
+        imageUploader.style.borderColor = 'var(--border-color)';
         const files = event.dataTransfer.files;
         if (files.length > 0) {
             handleFile(files[0]);
@@ -85,10 +86,12 @@ analyzeButton.addEventListener('click', () => {
 
 resetButton.addEventListener('click', () => {
     imagePreview.innerHTML = '';
+    imagePreview.classList.remove('active');
     resultSection.classList.add('hidden');
     resetButton.classList.add('hidden');
     analyzeButton.classList.add('hidden');
-    uploadArea.style.display = 'block';
+    uploadArea.style.display = 'flex';
+    illustration.style.display = 'block';
     fileInput.value = '';
     imageUploader.style.cursor = 'pointer';
     imageDataUrl = null;
@@ -104,7 +107,9 @@ function handleFile(file) {
     reader.onload = (e) => {
         imageDataUrl = e.target.result;
         imagePreview.innerHTML = `<img src="${imageDataUrl}" alt="Uploaded Image">`;
+        imagePreview.classList.add('active');
         uploadArea.style.display = 'none';
+        illustration.style.display = 'none'; 
         imageUploader.style.cursor = 'default';
         analyzeButton.classList.remove('hidden');
     };
@@ -113,12 +118,11 @@ function handleFile(file) {
 
 function analyzeImage(dataUrl) {
     const seasons = Object.keys(personalColors);
-    // Simple hash function to get a consistent index from the image data
     let hash = 0;
     for (let i = 0; i < dataUrl.length; i++) {
         const char = dataUrl.charCodeAt(i);
         hash = (hash << 5) - hash + char;
-        hash |= 0; // Convert to 32bit integer
+        hash |= 0; 
     }
 
     const index = Math.abs(hash) % seasons.length;
