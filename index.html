@@ -3,34 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 퍼스널 컬러는?</title>
+    <title>Personal Color Analysis</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
         <header>
-            <h1>나의 퍼스널 컬러는?</h1>
+            <h1>Personal Color Analysis</h1>
         </header>
         <main>
             <div class="upload-section">
-                <p>얼굴 정면이 잘 나온 사진을 업로드해주세요.</p>
+                <p>Upload your photo to find out your personal color.</p>
                 <div id="image-uploader">
                     <div class="upload-area">
-                        <p>이곳에 사진을 드래그 앤 드롭하거나 클릭하여 업로드하세요.</p>
-                        <input type="file" id="file-input" accept="image/*" style="display: none;">
+                        <p>Drag & Drop your image here or click to select</p>
                     </div>
                     <div class="image-preview"></div>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
                 </div>
-                <button id="analyze-button" class="hidden">분석하기</button>
-                <button id="reset-button" class="hidden">초기화</button>
+                <button id="analyze-button" class="hidden">Start</button>
+                <button id="reset-button" class="hidden">Reset</button>
             </div>
-            <div id="result-section" class="hidden">
-                <h2>당신의 퍼스널 컬러는...</h2>
-                <div class="result-display">
-                    <h3 id="result-season"></h3>
-                    <div id="result-palette"></div>
-                </div>
-            </div>
+            <section id="result-section" class="hidden">
+                <h2 id="result-season"></h2>
+                <div id="result-palette"></div>
+            </section>
         </main>
     </div>
     <script src="main.js"></script>

@@ -17,14 +17,17 @@ This project aims to create a web application that analyzes a user's facial phot
 *   **Improved User Flow:**
     *   An "Analyze" button appears after image upload, providing a clear call to action.
     *   The analysis is triggered only when the user clicks the "Analyze" button.
+*   **UI Enhancements:**
+    *   Uploaded images are scaled correctly using `object-fit: contain`.
+    *   Color names are displayed alongside the color swatches.
 
-## Current Task: UI Enhancements - Image Scaling and Color Names
+## Current Task: Button Labels and Responsive Design
 
-*   **Objective:** Improve the visual presentation of the analysis results.
+*   **Objective:** Change button labels and make the website fully responsive.
 *   **Plan:**
-    1.  **Update CSS (`style.css`):**
-        *   Modify the `.image-preview img` style to use `object-fit: contain` to prevent images from being cropped.
-        *   Add styles for displaying color names below the color swatches.
-    2.  **Update JavaScript (`main.js`):**
-        *   Update the `personalColors` data structure to include color names along with their hex codes.
-        *   Modify the `displayResult` function to create and display the color names with the color swatches.
+    1.  **Update HTML (`index.html`):**
+        *   Change the "Analyze" button text to "Start".
+        *   Change the "Reset" button text to "Reset".
+    2.  **Update CSS (`style.css`):**
+        *   Add media queries to adjust the layout and font sizes for different screen sizes (e.g., mobile, tablet, desktop).
+        *   Ensure all elements, including the uploader, image preview, and results section, scale gracefully.
