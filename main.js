@@ -76,19 +76,24 @@ function startApp() {
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
 
+    // Prevent default browser behavior for drag and drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        document.body.addEventListener(eventName, e => e.preventDefault());
+    });
+
     uploadArea.addEventListener('click', () => fileInput.click());
     
     ['dragover', 'dragenter'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, (e) => {
-            e.preventDefault();
+        uploadArea.addEventListener(eventName, () => {
             uploadArea.classList.add('dragover');
         });
     });
 
-    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
 
     uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
         uploadArea.classList.remove('dragover');
         if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
