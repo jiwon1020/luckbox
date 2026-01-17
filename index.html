@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js/dist/face-api.min.js"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8199595447179560"
      crossorigin="anonymous"></script>
 </head>
@@ -44,6 +45,7 @@
                         <input type="file" id="file-input" hidden accept="image/jpeg, image/png">
                         <div class="image-display-area">
                             <div class="image-preview"></div>
+                            <canvas id="face-canvas"></canvas> 
                             <div id="palette-overlay"></div>
                         </div>
                     </div>

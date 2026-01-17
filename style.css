@@ -38,6 +38,7 @@ header { background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px)
 
 .image-display-area { display: none; position: relative; width: 100%; max-width: 500px; margin: 1rem auto 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
 .image-preview img { width: 100%; display: block; }
+#face-canvas { position: absolute; top: 0; left: 0; }
 #palette-overlay { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); padding: 1rem; display: flex; justify-content: center; align-items: center; gap: 1rem; }
 .palette-color-chip { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: transform 0.2s ease; }
 .palette-color-chip:hover { transform: scale(1.15); }

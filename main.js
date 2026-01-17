@@ -54,11 +54,21 @@ const personalColors = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+        faceapi.nets.faceExpressionNet.loadFromUri('/models')
+    ]).then(startApp).catch(err => console.error('Models failed to load', err));
+});
+
+function startApp() {
     const fileInput = document.getElementById('file-input');
     const imageUploader = document.getElementById('image-uploader');
     const uploadArea = document.querySelector('.upload-area');
     const imageDisplayArea = document.querySelector('.image-display-area');
     const imagePreview = document.querySelector('.image-preview');
+    const faceCanvas = document.getElementById('face-canvas');
     const paletteOverlay = document.getElementById('palette-overlay');
     const resultSection = document.getElementById('result-section');
     const resultSeason = document.getElementById('result-season');
@@ -66,48 +76,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
 
-    if (uploadArea) {
-        uploadArea.addEventListener('click', () => fileInput.click());
-        
-        ['dragover', 'dragenter'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-        });
-
-        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-
-        uploadArea.addEventListener('drop', (e) => {
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    ['dragover', 'dragenter'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
             e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+            uploadArea.classList.add('dragover');
         });
-    }
+    });
 
-    if (fileInput) {
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) handleFile(e.target.files[0]);
-        });
-    }
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
 
-    if (resetButton) resetButton.addEventListener('click', resetAll);
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
 
-    function handleFile(file) {
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+
+    resetButton.addEventListener('click', resetAll);
+
+    async function handleFile(file) {
         if (!file.type.startsWith('image/')) {
             alert('이미지 파일(JPG, PNG)만 업로드할 수 있습니다.');
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image">`;
-            uploadArea.style.display = 'none';
-            imageDisplayArea.style.display = 'block';
-            resetButton.classList.remove('hidden');
-            analyzeImage(e.target.result);
+        const imgUrl = URL.createObjectURL(file);
+        const img = document.createElement('img');
+        img.src = imgUrl;
+
+        imagePreview.innerHTML = ''; 
+        imagePreview.appendChild(img);
+        
+        uploadArea.style.display = 'none';
+        imageDisplayArea.style.display = 'block';
+        resetButton.classList.remove('hidden');
+
+        img.onload = async () => {
+            const displaySize = { width: img.width, height: img.height };
+            faceapi.matchDimensions(faceCanvas, displaySize);
+            
+            const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
+            const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+            const context = faceCanvas.getContext('2d');
+            context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+            faceapi.draw.drawDetections(faceCanvas, resizedDetections);
+            faceapi.draw.drawFaceLandmarks(faceCanvas, resizedDetections);
+            faceapi.draw.drawFaceExpressions(faceCanvas, resizedDetections);
+
+            analyzeImage(imgUrl);
         };
-        reader.readAsDataURL(file);
     }
 
     function analyzeImage(dataUrl) {
@@ -179,5 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         seasonalDescriptions.innerHTML = '';
         resetButton.classList.add('hidden');
         fileInput.value = '';
+        const context = faceCanvas.getContext('2d');
+        context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
     }
-});
+}
