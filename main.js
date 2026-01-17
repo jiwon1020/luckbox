@@ -51,6 +51,7 @@ const seasonalDescriptions = document.getElementById('seasonal-descriptions');
 const analyzeButton = document.getElementById('analyze-button');
 const resetButton = document.getElementById('reset-button');
 const uploadArea = document.querySelector('.upload-area');
+const analysisSection = document.getElementById('analysis-section');
 let imageDataUrl = null;
 
 imageUploader.addEventListener('click', () => fileInput.click());
@@ -96,6 +97,7 @@ resetButton.addEventListener('click', () => {
     uploadArea.style.display = 'flex'; 
     fileInput.value = '';
     imageDataUrl = null;
+    analysisSection.style.gridTemplateColumns = 'repeat(auto-fit, minmax(300px, 1fr))';
 });
 
 function handleFile(file) {
@@ -177,6 +179,7 @@ function displayResult(season, seasonData) {
         seasonalDescriptions.appendChild(seasonDiv);
     }
 
+    analysisSection.style.gridTemplateColumns = '1fr';
     resultSection.classList.remove('hidden');
     analyzeButton.classList.add('hidden');
 }
