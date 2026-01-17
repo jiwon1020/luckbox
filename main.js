@@ -53,15 +53,6 @@ const personalColors = {
     },
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-        faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
-        faceapi.nets.faceExpressionNet.loadFromUri('/models')
-    ]).then(startApp).catch(err => console.error('Models failed to load', err));
-});
-
 function startApp() {
     const fileInput = document.getElementById('file-input');
     const uploadArea = document.querySelector('.upload-area');
@@ -75,32 +66,35 @@ function startApp() {
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
 
-    // Prevent default browser behavior
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        document.body.addEventListener(eventName, e => e.preventDefault());
-    });
-
-    uploadArea.addEventListener('click', () => fileInput.click());
-    
-    ['dragenter', 'dragover'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-    });
-
-    uploadArea.addEventListener('dragleave', (e) => {
+    function highlight(e) {
         e.preventDefault();
+        e.stopPropagation();
+        uploadArea.classList.add('dragover');
+    }
+
+    function unhighlight(e) {
+        e.preventDefault();
+        e.stopPropagation();
         uploadArea.classList.remove('dragover');
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, unhighlight, false);
     });
 
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
-        uploadArea.classList.remove('dragover');
+        e.stopPropagation();
         if (e.dataTransfer.files.length > 0) {
             handleFile(e.dataTransfer.files[0]);
         }
     });
+    
+    uploadArea.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length > 0) handleFile(e.target.files[0]);
@@ -215,3 +209,12 @@ function startApp() {
         context.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+        faceapi.nets.faceExpressionNet.loadFromUri('/models')
+    ]).then(startApp).catch(err => console.error('Models failed to load', err));
+});
