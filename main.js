@@ -38,34 +38,25 @@ const resultPalette = document.getElementById('result-palette');
 const analyzeButton = document.getElementById('analyze-button');
 const resetButton = document.getElementById('reset-button');
 const uploadArea = document.querySelector('.upload-area');
-const illustration = document.querySelector('.illustration');
 let imageDataUrl = null;
 
-imageUploader.addEventListener('click', () => {
-    if (!imagePreview.querySelector('img')) {
-        fileInput.click();
-    }
-});
+imageUploader.addEventListener('click', () => fileInput.click());
 
 imageUploader.addEventListener('dragover', (event) => {
     event.preventDefault();
-    if (!imagePreview.querySelector('img')) {
-        imageUploader.style.borderColor = 'var(--primary-color)';
-    }
+    uploadArea.classList.add('dragover');
 });
 
 imageUploader.addEventListener('dragleave', () => {
-    imageUploader.style.borderColor = 'var(--border-color)';
+    uploadArea.classList.remove('dragover');
 });
 
 imageUploader.addEventListener('drop', (event) => {
     event.preventDefault();
-    if (!imagePreview.querySelector('img')) {
-        imageUploader.style.borderColor = 'var(--border-color)';
-        const files = event.dataTransfer.files;
-        if (files.length > 0) {
-            handleFile(files[0]);
-        }
+    uploadArea.classList.remove('dragover');
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+        handleFile(files[0]);
     }
 });
 
@@ -88,10 +79,8 @@ resetButton.addEventListener('click', () => {
     resultSection.classList.add('hidden');
     resetButton.classList.add('hidden');
     analyzeButton.classList.add('hidden');
-    uploadArea.style.display = 'flex';
-    illustration.style.display = 'block';
+    uploadArea.style.display = 'flex'; 
     fileInput.value = '';
-    imageUploader.style.cursor = 'pointer';
     imageDataUrl = null;
 });
 
@@ -107,8 +96,6 @@ function handleFile(file) {
         imagePreview.innerHTML = `<img src="${imageDataUrl}" alt="Uploaded Image">`;
         imagePreview.classList.add('active');
         uploadArea.style.display = 'none';
-        illustration.style.display = 'none'; 
-        imageUploader.style.cursor = 'default';
         analyzeButton.classList.remove('hidden');
         resetButton.classList.remove('hidden');
     };
@@ -134,20 +121,10 @@ function displayResult(season, palette) {
     resultSeason.textContent = season;
     resultPalette.innerHTML = '';
     palette.forEach(color => {
-        const colorItem = document.createElement('div');
-        colorItem.classList.add('color-item');
-
         const colorBox = document.createElement('div');
         colorBox.classList.add('color-box');
         colorBox.style.backgroundColor = color.code;
-
-        const colorName = document.createElement('span');
-        colorName.classList.add('color-name');
-        colorName.textContent = color.name;
-
-        colorItem.appendChild(colorBox);
-        colorItem.appendChild(colorName);
-        resultPalette.appendChild(colorItem);
+        resultPalette.appendChild(colorBox);
     });
     resultSection.classList.remove('hidden');
     analyzeButton.classList.add('hidden');
