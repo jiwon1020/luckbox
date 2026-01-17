@@ -64,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function startApp() {
     const fileInput = document.getElementById('file-input');
-    const imageUploader = document.getElementById('image-uploader');
     const uploadArea = document.querySelector('.upload-area');
     const imageDisplayArea = document.querySelector('.image-display-area');
     const imagePreview = document.querySelector('.image-preview');
@@ -76,26 +75,31 @@ function startApp() {
     const seasonalDescriptions = document.getElementById('seasonal-descriptions');
     const resetButton = document.getElementById('reset-button');
 
-    // Prevent default browser behavior for drag and drop
+    // Prevent default browser behavior
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         document.body.addEventListener(eventName, e => e.preventDefault());
     });
 
     uploadArea.addEventListener('click', () => fileInput.click());
     
-    ['dragover', 'dragenter'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, () => {
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+            e.preventDefault();
             uploadArea.classList.add('dragover');
         });
     });
 
-    uploadArea.addEventListener('dragleave', () => {
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
         uploadArea.classList.remove('dragover');
     });
 
     uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
         uploadArea.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+        }
     });
 
     fileInput.addEventListener('change', (e) => {
